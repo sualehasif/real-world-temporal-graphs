@@ -73,6 +73,7 @@ generate_watts_strogatz(uint64_t num_nodes, uint64_t K, double beta) {
         dest = int_dist(gen);
       }
       edges[i * K + count] = {i, dest, dis_time(gen)};
+      count++;
     }
   }
 
