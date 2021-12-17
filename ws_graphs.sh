@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Run with LLsub ./rmat_graphs.sh [1,40,1] -J ws_graph
+# Run with LLsub ./ws_graphs.sh [1,40,1] -J ws_graph
 
-NUM_NODES=100000
+NUM_NODES=1000000
 K=100
 BETA=.1
 PRINT_FREQ=1000
