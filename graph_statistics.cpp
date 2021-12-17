@@ -1,5 +1,6 @@
 #include "graph.hpp"
 #include "graph_generators.hpp"
+#include "io_util.hpp"
 #include <cstdlib>
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
@@ -40,6 +41,14 @@ void get_ws_statistics(uint64_t num_nodes, uint64_t K, double beta,
   graph_statistics(edges, print_freq);
 }
 
+void get_adj_statistics(const std::string &filename, uint64_t print_freq) {
+
+  uint64_t edge_count;
+  uint32_t node_count;
+  auto edges = get_edges_from_file_adj_sym(filename, &edge_count, &node_count);
+  graph_statistics(edges, print_freq);
+}
+
 int main(int32_t argc, char *argv[]) {
   if (std::string("rmat") == argv[1]) {
     get_rmat_statistics(std::strtol(argv[2], nullptr, 10),
@@ -56,6 +65,9 @@ int main(int32_t argc, char *argv[]) {
     get_ws_statistics(
         std::strtol(argv[2], nullptr, 10), std::strtol(argv[3], nullptr, 10),
         std::strtod(argv[4], nullptr), std::strtol(argv[5], nullptr, 10));
+  }
+  if (std::string("adj") == argv[1]) {
+    get_adj_statistics(argv[2], std::strtol(argv[3], nullptr, 10));
   }
   return 0;
 }
