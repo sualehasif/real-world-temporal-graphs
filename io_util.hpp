@@ -1,4 +1,5 @@
 #pragma once
+#include <limits>
 #define newA(__E, __n) (__E *)malloc((__n) * sizeof(__E))
 #include "parallel.h"
 #include <algorithm>
@@ -119,9 +120,7 @@ char *readStringFromFile(const char *fileName, long *length) {
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-get_edges_from_file_adj_sym(const std::string &filename, uint64_t *edge_count,
-                            uint32_t *node_count,
-                            [[maybe_unused]] bool print = true) {
+get_edges_from_file_adj_sym(const std::string &filename) {
   int64_t length = 0;
   char *S = readStringFromFile(filename.c_str(), &length);
   if (length == 0) {
@@ -174,10 +173,35 @@ get_edges_from_file_adj_sym(const std::string &filename, uint64_t *edge_count,
       edges_array[j] = {i, edges[j], dis_time(gen)};
     }
   }
-  *edge_count = m;
-  *node_count = n;
   free(In);
 
+  std::sort(edges_array.begin(), edges_array.end(),
+            [](auto const &t1, auto const &t2) {
+              return std::get<2>(t1) < std::get<2>(t2);
+            });
+  return edges_array;
+}
+
+template <class node_t = uint32_t, class timestamp_t = uint32_t>
+std::vector<std::tuple<node_t, node_t, timestamp_t>>
+get_edges_from_file_edges(const std::string &filename, bool shuffle) {
+  std::ifstream infile(filename);
+
+  std::vector<std::tuple<node_t, node_t, timestamp_t>> edges_array;
+  node_t a;
+  node_t b;
+  timestamp_t c;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dis_time(
+      0, std::numeric_limits<uint32_t>::max());
+  while (infile >> a >> b >> c) {
+    if (!shuffle) {
+      edges_array.emplace_back(a, b, c);
+    } else {
+      edges_array.emplace_back(a, b, dis_time(gen));
+    }
+  }
   std::sort(edges_array.begin(), edges_array.end(),
             [](auto const &t1, auto const &t2) {
               return std::get<2>(t1) < std::get<2>(t2);

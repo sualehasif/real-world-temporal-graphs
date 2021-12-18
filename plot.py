@@ -16,7 +16,7 @@ for field in ["num_nodes", "num_edges", "average_degree", "max_degree", "num_tri
     df = pd.DataFrame(dfs[0][1]["timestep"])
     for d in dfs:
         df[d[0]] = d[1][field]
-    df.plot(x="timestep", legend=False)
+    df.plot(x="timestep")
     plt.ylim(ymin=0)
     plt.title(field)
     plt.savefig(output_prefix+"_"+field+".png", bbox_inches="tight")
