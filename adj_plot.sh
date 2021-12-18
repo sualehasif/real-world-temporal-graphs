@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Run with LLsub ./adj_plot.sh [1,1,1]
+# Run with LLsub ./adj_plot.sh [1,1,1] -w # -- <graph_name>
 module load anaconda/2021a
-INPUT_FILENAME=adj/adj_stats.csv
+NAME=$1
+INPUT_FILENAME=output/$NAME/${NAME}_stats.csv
 
-python plot.py adj/adj $INPUT_FILENAME.*
+python plot.py output/$NAME/$NAME $INPUT_FILENAME.*

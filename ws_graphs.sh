@@ -6,6 +6,6 @@ NUM_NODES=1000000
 K=100
 BETA=.1
 PRINT_FREQ=1000
-OUTPUT_FILENAME=ws/ws_stats.csv
-mkdir -p ws
+OUTPUT_FILENAME=output/ws/ws_stats.csv
+mkdir -p output/ws
 ./run ws $NUM_NODES $K $BETA $PRINT_FREQ $OUTPUT_FILENAME.$LLSUB_RANK
