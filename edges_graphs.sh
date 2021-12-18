@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Run with LLsub ./edges_graphs.sh [1,20,1] -J adj_graph
+# Run with LLsub ./edges_graphs.sh [1,20,1] -J edges_graph -- <graph_name>
 
-GRAPH_PATH=/home/gridsan/groups/dynamic-graphs/graphs/soc-bitcoin/soc-bitcoin.edges
+NAME=$1
+GRAPH_PATH=/home/gridsan/groups/dynamic-graphs/graphs/$NAME/$NAME.edges
 PRINT_FREQ=1000
-OUTPUT_FILENAME=edges/edges_stats.csv
-mkdir -p edges
-if [$LLSUB_RANK -eq 0 ]
+OUTPUT_FILENAME=$NAME/${NAME}_stats.csv
+mkdir -p $NAME
+if [[ $LLSUB_RANK -eq 0 ]]
 then
 ./run edges $GRAPH_PATH 0 $PRINT_FREQ $OUTPUT_FILENAME.$LLSUB_RANK
 else

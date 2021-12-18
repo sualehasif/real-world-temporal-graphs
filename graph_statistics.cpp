@@ -63,6 +63,8 @@ void get_edges_statistics(const std::string &filename, bool shuffle,
 
   auto edges = get_edges_from_file_edges(filename, shuffle);
   std::cout << "done loading the graph" << std::endl;
+  std::cout << "have " << edges.size() << " edges printing every " << print_freq << std::endl;
+  printf("output filename is %s\n", output_filename);
   graph_statistics(edges, print_freq, output_filename);
 }
 
