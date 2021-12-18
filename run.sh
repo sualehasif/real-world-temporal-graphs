@@ -6,11 +6,14 @@ result=$(LLsub ./edges_graphs.sh [1,20,1] -J ${graph}_graph -- $graph | head -n 
 LLsub ./edges_plot.sh [1,1,1] -J ${graph}_plot -w $result -- $graph
 done
 
-for graph in com-orkut.ungraph.adj protein.adj soc-LiveJournal1_sym.adj twitter.adj
+for graph in com-orkut.ungraph.adj protein.adj soc-LiveJournal1_sym.adj
 do
 result=$(LLsub ./adj_graphs.sh [1,20,1] -J ${graph}_graph -- $graph | head -n 1 | cut -d " " -f 4)
 LLsub ./adj_plot.sh [1,1,1] -J ${graph}_plot -w $result -- $graph
 done
+
+result=$(LLsub ./adj_graphs.sh [10,2,1] -J twitter.adj_graph -- twitter.adj | head -n 1 | cut -d " " -f 4)
+LLsub ./adj_plot.sh [1,1,1] -J twitter.adj_plot -w $result -- twitter.adj
 
 result=$(LLsub ./er_graphs.sh [1,20,1] -J er_graph  | head -n 1 | cut -d " " -f 4)
 LLsub ./er_plot.sh [1,1,1] -J er_plot -w $result
