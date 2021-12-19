@@ -14,7 +14,8 @@ std::vector<std::tuple<node_t, node_t, timestamp_t>>
 generate_rmat(uint64_t num_nodes, uint64_t num_edges, float a = .5,
               float b = .1, float c = .1) {
   std::vector<std::tuple<node_t, node_t, timestamp_t>> edges;
-  auto r = random_aspen();
+  std::random_device rd;
+  auto r = random_aspen(rd());
   uint64_t nn = 1UL << (log2_up(num_nodes) - 1);
   auto rmat = rMat<uint32_t>(nn, r.ith_rand(0), a, b, c);
   for (uint64_t i = 0; i < num_edges; i++) {

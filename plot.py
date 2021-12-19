@@ -13,7 +13,11 @@ for fname in sys.argv[2:]:
 output_prefix = sys.argv[1]
 
 for field in ["num_nodes", "num_edges", "average_degree", "max_degree", "num_triangles", "new_edges"]:
-    df = pd.DataFrame(dfs[0][1]["timestep"])
+    longest_df = dfs[0][1]
+    for d in dfs[1:]:
+        if len(d[1].index) > len(longest_df.index):
+            longest_df = d[1]
+    df = pd.DataFrame(longest_df["timestep"])
     for d in dfs:
         df[d[0]] = d[1][field]
     df.plot(x="timestep", legend=False)
