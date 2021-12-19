@@ -29,4 +29,9 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 add_subdirectory(external/abseil-cpp)
 
 
-target_link_libraries(run absl::flat_hash_map absl::flat_hash_set)
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(run absl::flat_hash_map absl::flat_hash_set OpenMP::OpenMP_CXX)
+  else()
+  target_link_libraries(run absl::flat_hash_map absl::flat_hash_set)
+endif()

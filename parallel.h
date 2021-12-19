@@ -1,6 +1,8 @@
 #ifndef _PARALLEL_H
 #define _PARALLEL_H
 
+#define OPENMP 1
+
 // intel cilk+
 #if CILK == 1
 #include <cilk/cilk.h>
