@@ -120,7 +120,8 @@ char *readStringFromFile(const char *fileName, long *length) {
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-get_edges_from_file_adj_sym(const std::string &filename) {
+get_edges_from_file_adj_sym(const std::string &filename, uint32_t *num_nodes,
+                            uint64_t *num_edges) {
   int64_t length = 0;
   char *S = readStringFromFile(filename.c_str(), &length);
   if (length == 0) {
@@ -145,6 +146,8 @@ get_edges_from_file_adj_sym(const std::string &filename) {
   W.del();
   uint64_t n = In[0];
   uint64_t m = In[1];
+  *num_nodes = n;
+  *num_edges = m;
   if (n == 0 || m == 0) {
     printf("the file says we have no edges or vertices, exiting\n");
     free(In);

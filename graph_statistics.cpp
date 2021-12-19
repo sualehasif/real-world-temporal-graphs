@@ -53,7 +53,46 @@ void get_ws_statistics(uint64_t num_nodes, uint64_t K, double beta,
 void get_adj_statistics(const std::string &filename, uint64_t print_freq,
                         char *output_filename) {
 
-  auto edges = get_edges_from_file_adj_sym(filename);
+  uint32_t num_nodes;
+  uint64_t num_edges;
+  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
+  std::cout << "done loading the graph" << std::endl;
+  graph_statistics(edges, print_freq, output_filename);
+}
+void get_adj_rmat_statistics(const std::string &filename, uint64_t print_freq,
+                             char *output_filename) {
+
+  uint32_t num_nodes;
+  uint64_t num_edges;
+  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
+  auto edges2 = generate_rmat(num_nodes, num_edges);
+  edges.insert(edges.end(), edges2.begin(), edges2.end());
+  std::cout << "done loading the graph" << std::endl;
+  graph_statistics(edges, print_freq, output_filename);
+}
+
+void get_adj_er_statistics(const std::string &filename, uint64_t print_freq,
+                           char *output_filename) {
+
+  uint32_t num_nodes;
+  uint64_t num_edges;
+  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
+  auto edges2 = generate_er(num_nodes,
+                            static_cast<double>(num_edges) /
+                                (static_cast<uint64_t>(num_nodes) * num_nodes));
+  edges.insert(edges.end(), edges2.begin(), edges2.end());
+  std::cout << "done loading the graph" << std::endl;
+  graph_statistics(edges, print_freq, output_filename);
+}
+
+void get_adj_ws_statistics(const std::string &filename, uint64_t print_freq,
+                           char *output_filename) {
+
+  uint32_t num_nodes;
+  uint64_t num_edges;
+  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
+  auto edges2 = generate_watts_strogatz(num_nodes, num_edges / num_nodes, .1);
+  edges.insert(edges.end(), edges2.begin(), edges2.end());
   std::cout << "done loading the graph" << std::endl;
   graph_statistics(edges, print_freq, output_filename);
 }
@@ -63,7 +102,8 @@ void get_edges_statistics(const std::string &filename, bool shuffle,
 
   auto edges = get_edges_from_file_edges(filename, shuffle);
   std::cout << "done loading the graph" << std::endl;
-  std::cout << "have " << edges.size() << " edges printing every " << print_freq << std::endl;
+  std::cout << "have " << edges.size() << " edges printing every " << print_freq
+            << std::endl;
   printf("output filename is %s\n", output_filename);
   graph_statistics(edges, print_freq, output_filename);
 }
@@ -88,6 +128,19 @@ int main(int32_t argc, char *argv[]) {
   }
   if (std::string("adj") == argv[1]) {
     get_adj_statistics(argv[2], std::strtol(argv[3], nullptr, 10), argv[4]);
+  }
+
+  if (std::string("adj_rmat") == argv[1]) {
+    get_adj_rmat_statistics(argv[2], std::strtol(argv[3], nullptr, 10),
+                            argv[4]);
+  }
+
+  if (std::string("adj_er") == argv[1]) {
+    get_adj_er_statistics(argv[2], std::strtol(argv[3], nullptr, 10), argv[4]);
+  }
+
+  if (std::string("adj_ws") == argv[1]) {
+    get_adj_ws_statistics(argv[2], std::strtol(argv[3], nullptr, 10), argv[4]);
   }
 
   if (std::string("edges") == argv[1]) {

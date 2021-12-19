@@ -10,6 +10,11 @@ for graph in com-orkut.ungraph.adj protein.adj soc-LiveJournal1_sym.adj
 do
 result=$(LLsub ./adj_graphs.sh [1,20,1] -J ${graph}_graph -- $graph | head -n 1 | cut -d " " -f 4)
 LLsub ./adj_plot.sh [1,1,1] -J ${graph}_plot -w $result -- $graph
+for gen in rmat er ws
+do
+result=$(LLsub ./adj_gen_graphs.sh [1,20,1] -J ${graph}_${gen}_graph -- $graph $gen | head -n 1 | cut -d " " -f 4)
+LLsub ./adj_gen_plot.sh [1,1,1] -J ${graph}_${gen}_plot -w $result -- $graph $gen
+done
 done
 
 result=$(LLsub ./adj_graphs.sh [10,2,1] -J twitter.adj_graph -- twitter.adj | head -n 1 | cut -d " " -f 4)
