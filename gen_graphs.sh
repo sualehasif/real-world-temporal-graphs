@@ -19,6 +19,6 @@ A=.5
 B=.1
 C=.1
 OUTPUT_FILENAME=output/$GEN/${GEN}_stats.csv
-
+mkdir -p output/$GEN
 ./run  --command $GEN --output $OUTPUT_FILENAME.$LLSUB_RANK --print_freq $PRINT_FREQ  --num_nodes $NUM_NODES --rmat_num_edges $NUM_EDGES --rmat_a $A --rmat_b $B --rmat_c $C --er_p $P --ws_k $K --ws_beta $BETA
 
