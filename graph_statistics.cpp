@@ -74,7 +74,7 @@ void get_adj_rmat_statistics(const std::string &filename, double a, double b,
   uint32_t num_nodes;
   uint64_t num_edges;
   auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
-  auto edges2 = generate_rmat(num_nodes, num_edges);
+  auto edges2 = generate_rmat(num_nodes, num_edges, a, b, c);
   edges.insert(edges.end(), edges2.begin(), edges2.end());
   std::cout << "done loading the graph" << std::endl;
   graph_statistics(edges, print_freq, output_filename);
