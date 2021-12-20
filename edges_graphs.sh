@@ -9,8 +9,8 @@ OUTPUT_FILENAME=output/$NAME/${NAME}_stats.csv
 mkdir -p output/$NAME
 if [[ $LLSUB_RANK -eq 0 ]]
 then
-./run edges $GRAPH_PATH 0 $PRINT_FREQ $OUTPUT_FILENAME.$LLSUB_RANK
+./run --command edges --input $GRAPH_PATH --print_freq $PRINT_FREQ --output $OUTPUT_FILENAME.$LLSUB_RANK
 else
-./run edges $GRAPH_PATH 1 $PRINT_FREQ $OUTPUT_FILENAME.$LLSUB_RANK
+./run edges $GRAPH_PATH --edges_shuffle --print_freq $PRINT_FREQ --output $OUTPUT_FILENAME.$LLSUB_RANK
 fi
 

@@ -12,8 +12,8 @@
 // generate an rmat graph not symeterized
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-generate_rmat(uint64_t num_nodes, uint64_t num_edges, float a = .5,
-              float b = .1, float c = .1) {
+generate_rmat(uint64_t num_nodes, uint64_t num_edges, double a = .5,
+              double b = .1, double c = .1) {
   std::vector<std::tuple<node_t, node_t, timestamp_t>> edges;
   std::random_device rd;
   auto r = random_aspen(rd());

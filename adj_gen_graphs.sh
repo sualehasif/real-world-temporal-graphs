@@ -9,4 +9,4 @@ GRAPH_PATH=/home/gridsan/groups/dynamic-graphs/graphs/$NAME
 PRINT_FREQ=1000
 OUTPUT_FILENAME=output/${NAME}_${GEN}/${NAME}_${GEN}_stats.csv
 mkdir -p output/${NAME}_${GEN}
-./run adj_$GEN $GRAPH_PATH $PRINT_FREQ $OUTPUT_FILENAME.$LLSUB_RANK
+./run --command adj_$GEN  --input $GRAPH_PATH --print_freq $PRINT_FREQ --output $OUTPUT_FILENAME.$LLSUB_RANK
