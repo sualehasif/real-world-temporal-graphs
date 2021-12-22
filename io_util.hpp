@@ -120,7 +120,7 @@ char *readStringFromFile(const char *fileName, long *length) {
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-get_edges_from_file_adj_sym(const std::string &filename, uint32_t *num_nodes,
+get_edges_from_file_adj_sym(const std::string &filename, node_t *num_nodes,
                             uint64_t *num_edges) {
   int64_t length = 0;
   char *S = readStringFromFile(filename.c_str(), &length);

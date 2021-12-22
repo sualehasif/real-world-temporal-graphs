@@ -36,90 +36,9 @@ void graph_statistics(
   myfile.close();
 }
 
-void get_rmat_statistics(uint64_t num_nodes, uint64_t num_edges, double a,
-                         double b, double c, uint64_t print_freq,
-                         std::string &output_filename) {
-  auto edges = generate_rmat(num_nodes, num_edges, a, b, c);
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_er_statistics(uint64_t num_nodes, double p, uint64_t print_freq,
-                       std::string &output_filename) {
-  auto edges = generate_er(num_nodes, p);
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_ws_statistics(uint64_t num_nodes, uint64_t K, double beta,
-                       uint64_t print_freq, std::string &output_filename) {
-  auto edges = generate_watts_strogatz(num_nodes, K, beta);
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_adj_statistics(const std::string &filename, uint64_t print_freq,
-                        std::string &output_filename) {
-
-  uint32_t num_nodes;
-  uint64_t num_edges;
-  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-void get_adj_rmat_statistics(const std::string &filename, double a, double b,
-                             double c, uint64_t print_freq,
-                             std::string &output_filename) {
-
-  uint32_t num_nodes;
-  uint64_t num_edges;
-  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
-  auto edges2 = generate_rmat(num_nodes, num_edges, a, b, c);
-  edges.insert(edges.end(), edges2.begin(), edges2.end());
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_adj_er_statistics(const std::string &filename, uint64_t print_freq,
-                           std::string &output_filename) {
-
-  uint32_t num_nodes;
-  uint64_t num_edges;
-  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
-  auto edges2 = generate_er(num_nodes,
-                            static_cast<double>(num_edges) /
-                                (static_cast<uint64_t>(num_nodes) * num_nodes));
-  edges.insert(edges.end(), edges2.begin(), edges2.end());
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_adj_ws_statistics(const std::string &filename, double beta,
-                           uint64_t print_freq, std::string &output_filename) {
-
-  uint32_t num_nodes;
-  uint64_t num_edges;
-  auto edges = get_edges_from_file_adj_sym(filename, &num_nodes, &num_edges);
-  auto edges2 = generate_watts_strogatz(num_nodes, num_edges / num_nodes, beta);
-  edges.insert(edges.end(), edges2.begin(), edges2.end());
-  std::cout << "done loading the graph" << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
-void get_edges_statistics(const std::string &filename, bool shuffle,
-                          uint64_t print_freq, std::string &output_filename) {
-
-  auto edges = get_edges_from_file_edges(filename, shuffle);
-  std::cout << "done loading the graph" << std::endl;
-  std::cout << "have " << edges.size() << " edges printing every " << print_freq
-            << std::endl;
-  std::cout << "output filename is " << output_filename << std::endl;
-  graph_statistics(edges, print_freq, output_filename);
-}
-
 ABSL_FLAG(std::string, command, "", "Which test to run");
 ABSL_FLAG(std::string, output, "del.csv", "output filename");
-ABSL_FLAG(uint64_t, print_freq, 1000, "How often to dup stats to file");
+ABSL_FLAG(uint64_t, print_freq, 1000, "How often to dump stats to file");
 ABSL_FLAG(uint64_t, num_nodes, 0, "Number of Nodes, used in generated graphs");
 ABSL_FLAG(uint64_t, rmat_num_edges, 0, "Number of edges to generate for rmat");
 ABSL_FLAG(double, rmat_a, .5, "Value of a for rmat");
@@ -134,41 +53,24 @@ ABSL_FLAG(bool, edges_shuffle, false,
 
 int main(int32_t argc, char *argv[]) {
   absl::SetProgramUsageMessage(
-      "Generate Statistics for a variaty of graph stypes");
+      "Generate Statistics for a variaty of graph types");
   absl::ParseCommandLine(argc, argv);
-  std::string command = absl::GetFlag(FLAGS_command);
   std::string output_filename = absl::GetFlag(FLAGS_output);
-  std::string input_filename = absl::GetFlag(FLAGS_input);
   uint64_t print_freq = absl::GetFlag(FLAGS_print_freq);
-  if (command == "rmat") {
-    get_rmat_statistics(
-        absl::GetFlag(FLAGS_num_nodes), absl::GetFlag(FLAGS_rmat_num_edges),
-        absl::GetFlag(FLAGS_rmat_a), absl::GetFlag(FLAGS_rmat_b),
-        absl::GetFlag(FLAGS_rmat_c), print_freq, output_filename);
-  } else if (command == "er") {
-    get_er_statistics(absl::GetFlag(FLAGS_num_nodes), absl::GetFlag(FLAGS_er_p),
-                      print_freq, output_filename);
-  } else if (command == "ws") {
-    get_ws_statistics(absl::GetFlag(FLAGS_num_nodes), absl::GetFlag(FLAGS_ws_k),
-                      absl::GetFlag(FLAGS_ws_beta), print_freq,
-                      output_filename);
-  } else if (command == "adj") {
-    get_adj_statistics(input_filename, print_freq, output_filename);
-  } else if (command == "adj_rmat") {
-    get_adj_rmat_statistics(input_filename, absl::GetFlag(FLAGS_rmat_a),
-                            absl::GetFlag(FLAGS_rmat_b),
-                            absl::GetFlag(FLAGS_rmat_c), print_freq,
-                            output_filename);
-  } else if (command == "adj_er") {
-    get_adj_er_statistics(input_filename, print_freq, output_filename);
-  } else if (command == "adj_ws") {
-    get_adj_ws_statistics(input_filename, absl::GetFlag(FLAGS_ws_beta),
-                          print_freq, output_filename);
-  } else if (command == "edges") {
-    get_edges_statistics(input_filename, absl::GetFlag(FLAGS_edges_shuffle),
-                         print_freq, output_filename);
-  } else {
-    std::cout << "command not found was: " << command << std::endl;
+  auto [edges, num_nodes] = AppendOnlyGraph<uint32_t>::get_graph_edges(
+      absl::GetFlag(FLAGS_command), absl::GetFlag(FLAGS_num_nodes),
+      absl::GetFlag(FLAGS_rmat_num_edges), absl::GetFlag(FLAGS_rmat_a),
+      absl::GetFlag(FLAGS_rmat_b), absl::GetFlag(FLAGS_rmat_c),
+      absl::GetFlag(FLAGS_er_p), absl::GetFlag(FLAGS_ws_k),
+      absl::GetFlag(FLAGS_ws_beta), absl::GetFlag(FLAGS_input),
+      absl::GetFlag(FLAGS_edges_shuffle));
+  std::cout << "done loading the graph" << std::endl;
+  std::cout << "have " << edges.size() << " edges and " << num_nodes << " nodes"
+            << std::endl;
+  std::cout << " printing every " << print_freq << std::endl;
+  if (num_nodes > 0) {
+    std::cout << "output filename is " << output_filename << std::endl;
+    graph_statistics(edges, print_freq, output_filename);
   }
   return 0;
 }

@@ -12,7 +12,7 @@
 // generate an rmat graph not symeterized
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-generate_rmat(uint64_t num_nodes, uint64_t num_edges, double a = .5,
+generate_rmat(node_t num_nodes, uint64_t num_edges, double a = .5,
               double b = .1, double c = .1) {
   std::vector<std::tuple<node_t, node_t, timestamp_t>> edges;
   std::random_device rd;
@@ -29,7 +29,7 @@ generate_rmat(uint64_t num_nodes, uint64_t num_edges, double a = .5,
 // generate a ER graph, not symeterized
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-generate_er(uint64_t num_nodes, float p) {
+generate_er(node_t num_nodes, float p) {
   std::vector<std::vector<std::tuple<node_t, node_t, timestamp_t>>>
       edge_buckets(getWorkers());
   p_for_1(int k = 0; k < getWorkers(); k++) {
@@ -73,7 +73,7 @@ generate_er(uint64_t num_nodes, float p) {
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 std::vector<std::tuple<node_t, node_t, timestamp_t>>
-generate_watts_strogatz(uint64_t num_nodes, uint64_t K, double beta) {
+generate_watts_strogatz(node_t num_nodes, uint64_t K, double beta) {
   std::vector<std::tuple<node_t, node_t, timestamp_t>> edges(num_nodes * K);
 
   std::random_device rd;

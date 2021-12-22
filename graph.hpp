@@ -1,4 +1,6 @@
 #pragma once
+#include "graph_generators.hpp"
+#include "io_util.hpp"
 
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
@@ -65,4 +67,57 @@ public:
   }
   uint64_t max_degree() { return max_degree_; }
   uint64_t num_triangles() { return triangle_count_; }
+
+  template <class timestamp_t = uint32_t>
+  static std::pair<std::vector<std::tuple<node_t, node_t, timestamp_t>>, node_t>
+  get_graph_edges(const std::string &command, node_t num_nodes,
+                  uint64_t rmat_num_edges, double rmat_a, double rmat_b,
+                  double rmat_c, double er_p, uint64_t ws_K, double ws_beta,
+                  const std::string &input_filename, bool shuffle) {
+    std::vector<std::tuple<node_t, node_t, timestamp_t>> edges;
+    if (command == "rmat") {
+      edges = generate_rmat(num_nodes, rmat_num_edges, rmat_a, rmat_b, rmat_c);
+    } else if (command == "er") {
+      edges = generate_er(num_nodes, er_p);
+    } else if (command == "ws") {
+      edges = generate_watts_strogatz(num_nodes, ws_K, ws_beta);
+    } else if (command == "adj") {
+      uint64_t num_edges;
+      edges =
+          get_edges_from_file_adj_sym(input_filename, &num_nodes, &num_edges);
+    } else if (command == "adj_rmat") {
+      uint64_t num_edges;
+      edges =
+          get_edges_from_file_adj_sym(input_filename, &num_nodes, &num_edges);
+      auto edges2 =
+          generate_rmat(num_nodes, rmat_num_edges, rmat_a, rmat_b, rmat_c);
+      edges.insert(edges.end(), edges2.begin(), edges2.end());
+    } else if (command == "adj_er") {
+      uint64_t num_edges;
+      edges =
+          get_edges_from_file_adj_sym(input_filename, &num_nodes, &num_edges);
+      auto edges2 = generate_er(
+          num_nodes, static_cast<double>(num_edges) /
+                         (static_cast<uint64_t>(num_nodes) * num_nodes));
+      edges.insert(edges.end(), edges2.begin(), edges2.end());
+    } else if (command == "adj_ws") {
+      uint64_t num_edges;
+      edges =
+          get_edges_from_file_adj_sym(input_filename, &num_nodes, &num_edges);
+      auto edges2 =
+          generate_watts_strogatz(num_nodes, num_edges / num_nodes, ws_beta);
+      edges.insert(edges.end(), edges2.begin(), edges2.end());
+    } else if (command == "edges") {
+      edges = get_edges_from_file_edges<node_t>(input_filename, shuffle);
+      for (const auto &e : edges) {
+        num_nodes = std::max(num_nodes, std::get<0>(e));
+        num_nodes = std::max(num_nodes, std::get<1>(e));
+      }
+    } else {
+      std::cout << "command not found was: " << command << std::endl;
+      num_nodes = 0;
+    }
+
+    return {edges, num_nodes};
+  }
 };
