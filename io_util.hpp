@@ -211,3 +211,98 @@ get_edges_from_file_edges(const std::string &filename, bool shuffle) {
             });
   return edges_array;
 }
+
+std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>
+get_binary_edges_from_file_edges(const std::string &filename, bool shuffle) {
+
+  std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
+  if (!file.is_open()) {
+    std::cout << "Unable to open file: " << filename << std::endl;
+    abort();
+  }
+  constexpr int line_size = 12;
+  long end = file.tellg();
+  file.seekg(0, std::ios::beg);
+  long n = end - file.tellg();
+  long num_edges = n / line_size;
+  std::vector<std::tuple<uint32_t, uint32_t, uint32_t>> edges;
+  edges.reserve(num_edges);
+    std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dis_time(
+      0, std::numeric_limits<uint32_t>::max());
+  constexpr long block_size = 1024*1024;
+  
+  char* buffer = (char*)malloc(block_size*line_size);
+  for (long i = 0; i < num_edges; i+=block_size) {
+    size_t read_amount = std::min(block_size, num_edges - i);
+    
+    file.read(buffer, read_amount*line_size);
+    uint32_t *int_buffer = (uint32_t *) buffer;
+    for (long j = 0; j < read_amount; j++) {
+      uint32_t src = int_buffer[3*j];
+      uint32_t dest = int_buffer[3*j+1];
+      uint32_t timestamp = int_buffer[3*j+2];
+      if (!shuffle) {
+        edges.push_back({src,dest,timestamp});
+      } else {
+        edges.push_back({src,dest,dis_time(gen)});
+      }
+    }
+
+  }
+  free(buffer);
+  std::sort(edges.begin(), edges.end(),
+          [](auto const &t1, auto const &t2) {
+            return std::get<2>(t1) < std::get<2>(t2);
+          });
+  return edges;
+}
+
+std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>>
+get_binary_edges_from_file_edges_with_remove(const std::string &filename, bool shuffle) {
+
+  std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
+  if (!file.is_open()) {
+    std::cout << "Unable to open file: " << filename << std::endl;
+    abort();
+  }
+  constexpr int line_size = 16;
+  long end = file.tellg();
+  file.seekg(0, std::ios::beg);
+  long n = end - file.tellg();
+  long num_edges = n / line_size;
+  std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>> edges;
+  edges.reserve(num_edges);
+    std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dis_time(
+      0, std::numeric_limits<uint32_t>::max());
+  constexpr long block_size = 1024*1024;
+  
+  char* buffer = (char*)malloc(block_size*line_size);
+  for (long i = 0; i < num_edges; i+=block_size) {
+    size_t read_amount = std::min(block_size, num_edges - i);
+    
+    file.read(buffer, read_amount*line_size);
+    uint32_t *int_buffer = (uint32_t *) buffer;
+    for (long j = 0; j < read_amount; j++) {
+      bool added = int_buffer[4*j] == 1;
+      uint32_t src = int_buffer[4*j+1];
+      uint32_t dest = int_buffer[4*j+2];
+      uint32_t timestamp = int_buffer[4*j+3];
+      if (!shuffle) {
+        edges.push_back({added, src,dest,timestamp});
+      } else {
+        edges.push_back({added, src,dest,dis_time(gen)});
+      }
+    }
+
+  }
+  free(buffer);
+  std::sort(edges.begin(), edges.end(),
+          [](auto const &t1, auto const &t2) {
+            return std::get<3>(t1) < std::get<3>(t2);
+          });
+  return edges;
+}

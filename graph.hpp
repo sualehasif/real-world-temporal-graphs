@@ -113,11 +113,139 @@ public:
         num_nodes = std::max(num_nodes, std::get<0>(e));
         num_nodes = std::max(num_nodes, std::get<1>(e));
       }
+    } else if (command == "edges_bin") {
+      edges = get_binary_edges_from_file_edges(input_filename, shuffle);
+      for (const auto &e : edges) {
+        num_nodes = std::max(num_nodes, std::get<0>(e));
+        num_nodes = std::max(num_nodes, std::get<1>(e));
+      }
     } else {
       std::cout << "command not found was: " << command << std::endl;
       num_nodes = 0;
     }
 
-    return {edges, num_nodes};
+    return {std::move(edges), num_nodes};
+  }
+};
+
+template <class node_t = uint32_t, bool triangle_count = true>
+class Graph {
+private:
+  std::vector<absl::flat_hash_set<node_t>> graph;
+  uint64_t num_edges_ = 0;
+  uint64_t num_nodes_ = 0;
+  // degree, id 
+  std::set<std::pair<node_t, node_t>> degree_heap;
+  uint64_t triangle_count_ = 0;
+
+public:
+  // returns true if the edge was added, false if it was already in the graph
+  bool add_edge(node_t source, node_t dest) {
+    auto max_node = std::max(source, dest);
+    if (max_node >= graph.size()) {
+      graph.resize(max_node + 1);
+    }
+    if (graph[source].size() == 0) {
+      num_nodes_ += 1;
+    }
+    if (graph[dest].size() == 0) {
+      num_nodes_ += 1;
+    }
+    bool inserted = graph[source].insert(dest).second;
+    graph[dest].insert(source);
+    if (inserted) {
+      num_edges_ += 1;
+      degree_heap.erase({graph[source].size()-1, source});
+      degree_heap.erase({graph[dest].size()-1, dest});
+      degree_heap.insert({graph[source].size(), source});
+      degree_heap.insert({graph[dest].size(), dest});
+      if constexpr (triangle_count) {
+        if (graph[source].size() <= graph[dest].size()) {
+          for (const auto &it : graph[source]) {
+            if (graph[dest].contains(it)) {
+              triangle_count_ += 1;
+            }
+          }
+        } else {
+          for (const auto &it : graph[dest]) {
+            if (graph[source].contains(it)) {
+              triangle_count_ += 1;
+            }
+          }
+        }
+      }
+    }
+    return inserted;
+  }
+  bool remove_edge(node_t source, node_t dest) {
+    auto max_node = std::max(source, dest);
+    if (max_node >= graph.size()) {
+      graph.resize(max_node + 1);
+    }
+    if (graph[source].size() == 0) {
+      num_nodes_ += 1;
+    }
+    if (graph[dest].size() == 0) {
+      num_nodes_ += 1;
+    }
+    bool removed = graph[source].erase(dest)>0;
+    graph[dest].erase(source);
+    if (removed) {
+      num_edges_ -= 1;
+      degree_heap.erase({graph[source].size()+1, source});
+      degree_heap.erase({graph[dest].size()+1, dest});
+      degree_heap.insert({graph[source].size(), source});
+      degree_heap.insert({graph[dest].size(), dest});
+      if constexpr (triangle_count) {
+        if (graph[source].size() <= graph[dest].size()) {
+          for (const auto &it : graph[source]) {
+            if (graph[dest].contains(it)) {
+              triangle_count_ -= 1;
+            }
+          }
+        } else {
+          for (const auto &it : graph[dest]) {
+            if (graph[source].contains(it)) {
+              triangle_count_ -= 1;
+            }
+          }
+        }
+      }
+    }
+    return removed;
+  }
+  uint64_t degree(node_t i) {
+    if (i >= graph.size()) {
+      return 0;
+    }
+    return graph[i].size();
+  }
+  uint64_t num_nodes() { return num_nodes_; }
+  uint64_t num_edges() { return num_edges_; }
+  double average_degree() {
+    return static_cast<double>(num_edges()) / num_nodes();
+  }
+  uint64_t max_degree() { return degree_heap.rbegin()->first; }
+  uint64_t num_triangles() { return triangle_count_; }
+
+  template <class timestamp_t = uint32_t>
+  static std::pair<std::vector<std::tuple<bool, node_t, node_t, timestamp_t>>, node_t>
+  get_graph_edges(const std::string &command, node_t num_nodes,
+                  uint64_t rmat_num_edges, double rmat_a, double rmat_b,
+                  double rmat_c, double er_p, uint64_t ws_K, double ws_beta,
+                  const std::string &input_filename, bool shuffle) {
+    std::vector<std::tuple<bool, node_t, node_t, timestamp_t>> edges;
+    if (command == "edges_bin") {
+      edges = get_binary_edges_from_file_edges_with_remove(input_filename, shuffle);
+      for (const auto &e : edges) {
+        num_nodes = std::max(num_nodes, std::get<1>(e));
+        num_nodes = std::max(num_nodes, std::get<2>(e));
+      }
+    } else {
+      std::cout << "command not found was: " << command << std::endl;
+      num_nodes = 0;
+    }
+
+    return {std::move(edges), num_nodes};
   }
 };
