@@ -124,7 +124,17 @@ public:
       num_nodes = 0;
     }
 
-    return {std::move(edges), num_nodes};
+    return {std::move(edges), num_nodes+1};
+  }
+    template <class timestamp_t = uint32_t>
+  static std::pair<std::vector<std::tuple<node_t, node_t, timestamp_t>>, node_t>
+  get_graph_edges(const std::string &input_filename) {
+    if (ends_with(input_filename, "bin")) {
+      return get_graph_edges(
+        "edges_bin", 0, 0, 0, 0, 0, 0, 0, 0, input_filename, false);
+    }
+    return get_graph_edges(
+        "edges", 0, 0, 0, 0, 0, 0, 0, 0, input_filename, false);
   }
 };
 
@@ -246,6 +256,6 @@ public:
       num_nodes = 0;
     }
 
-    return {std::move(edges), num_nodes};
+    return {std::move(edges), num_nodes+1};
   }
 };

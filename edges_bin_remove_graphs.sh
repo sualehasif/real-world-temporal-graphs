@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Run with LLsub ./edges_bin_graphs.sh [20,1,1] -J edges_bin_graph -- <graph_name>
+# Run with LLsub ./edges_bin_remove_graphs.sh [20,1,1] -J edges_bin_remove_graph -- <graph_name>
 
 NAME=$1
 GRAPH_PATH=/home/gridsan/groups/dynamic-graphs/graphs/$NAME/$NAME.bin
 PRINT_FREQ=1000
-OUTPUT_FILENAME=output/$NAME/${NAME}_stats.csv
+OUTPUT_FILENAME=output/$NAME/${NAME}_remove_stats.csv
 mkdir -p output/$NAME
 if [[ $LLSUB_RANK -eq 0 ]]
 then

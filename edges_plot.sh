@@ -6,3 +6,4 @@ NAME=$1
 INPUT_FILENAME=output/$NAME/${NAME}_stats.csv
 
 python plot.py output/$NAME/$NAME $INPUT_FILENAME.*
+python plot_timestamp.py $INPUT_FILENAME.0 output/$NAME/$NAME

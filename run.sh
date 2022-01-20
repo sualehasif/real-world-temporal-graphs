@@ -32,4 +32,4 @@ LLsub ./gen_plot.sh [1,1,1] -J ws_plot -w $result -- ws
 
 
 result=$(LLsub ./edges_bin_graphs.sh [20,1,1] -J edges_bin_graph -- reddit  | head -n 1 | cut -d " " -f 4)
-LLsub ./edges_bin_plot.sh [1,1,1] -w $result -- reddit
+LLsub ./edges_plot.sh [1,1,1] -w $result -- reddit

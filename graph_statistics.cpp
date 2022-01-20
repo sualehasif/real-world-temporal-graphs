@@ -14,7 +14,7 @@ void graph_statistics(const
   std::ofstream myfile;
   myfile.open(output_filename);
   AppendOnlyGraph<> g;
-  myfile << "timestep, num_nodes, num_edges, average_degree, max_degree, "
+  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, max_degree, "
             "num_triangles, "
             "new_edges"
          << std::endl;
@@ -29,7 +29,7 @@ void graph_statistics(const
     for (uint64_t j = i; j < end; j++) {
       count_new += g.add_edge(std::get<0>(edges[j]), std::get<1>(edges[j]));
     }
-    myfile << end << "," << g.num_nodes() << "," << g.num_edges() << ","
+    myfile << end << "," << std::get<2>(edges[i]) << "," << g.num_nodes() << "," << g.num_edges() << ","
            << g.average_degree() << "," << g.max_degree() << ","
            << g.num_triangles() << "," << count_new << std::endl;
   }
@@ -43,7 +43,7 @@ void graph_statistics_remove(const
   std::ofstream myfile;
   myfile.open(output_filename);
   Graph<> g;
-  myfile << "timestep, num_nodes, num_edges, average_degree, max_degree, "
+  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, max_degree, "
             "num_triangles, "
             "new_edges"
          << std::endl;
@@ -59,10 +59,10 @@ void graph_statistics_remove(const
       if (std::get<0>(edges[j])) {
         count_new += g.add_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
       } else {
-        // g.remove_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
+        g.remove_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
       }
     }
-    myfile << end << "," << g.num_nodes() << "," << g.num_edges() << ","
+    myfile << end << "," << std::get<3>(edges[i]) << "," << g.num_nodes() << "," << g.num_edges() << ","
            << g.average_degree() << "," << g.max_degree() << ","
            << g.num_triangles() << "," << count_new << std::endl;
   }

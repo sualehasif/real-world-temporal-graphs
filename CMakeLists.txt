@@ -3,6 +3,7 @@ project(graph_statistics)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(run graph_statistics.cpp)
+add_executable(run_nodes node_statistics.cpp)
 
 # Pick the C++ standard to compile with.
 # Abseil currently supports C++11, C++14, and C++17.
@@ -16,6 +17,9 @@ include(CheckIPOSupported)
 check_ipo_supported(RESULT lto_supported OUTPUT lto_error LANGUAGES CXX)
 if(lto_supported)
   set_target_properties(run PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION true
+  )
+  set_target_properties(run_nodes PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION true
   )
 endif()
@@ -33,11 +37,14 @@ add_subdirectory(external/abseil-cpp)
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
   target_link_libraries(run absl::flat_hash_map absl::flat_hash_set absl::flags absl::flags_parse OpenMP::OpenMP_CXX)
+  target_link_libraries(run_nodes absl::flat_hash_map absl::flat_hash_set absl::flags absl::flags_parse OpenMP::OpenMP_CXX)
   else()
   target_link_libraries(run absl::flat_hash_map absl::flat_hash_set absl::flags absl::flags_parse)
+  target_link_libraries(run_nodes absl::flat_hash_map absl::flat_hash_set absl::flags absl::flags_parse)
 endif()
 
 target_compile_features(run PUBLIC cxx_std_17)
+target_compile_features(run_nodes PUBLIC cxx_std_17)
 if(CMAKE_CXX_STANDARD LESS 17)
   message(FATAL_ERROR
       "requires CMAKE_CXX_STANDARD >= 17 (got: ${CMAKE_CXX_STANDARD})")
