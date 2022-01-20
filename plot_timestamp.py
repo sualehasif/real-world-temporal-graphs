@@ -16,4 +16,5 @@ for field in ["num_nodes", "num_edges", "average_degree", "max_degree", "num_tri
     df.plot(x="timestamp", y=field, legend=False)
     plt.ylim(ymin=0)
     plt.title(output_filename.split("/")[-1]+" "+field+" timestamp")
-    plt.savefig(output_filename+"_"+field+"_timestamp.png", bbox_inches="tight")
+    plt.savefig(output_filename+"_"+field +
+                "_timestamp.png", bbox_inches="tight")

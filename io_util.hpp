@@ -200,15 +200,14 @@ get_edges_from_file_edges(const std::string &filename, bool shuffle) {
   if (shuffle) {
     timestamp_t min_time = std::numeric_limits<timestamp_t>::max();
     timestamp_t max_time = std::numeric_limits<timestamp_t>::min();
-    for (const auto& e : edges_array) {
+    for (const auto &e : edges_array) {
       min_time = std::min(min_time, std::get<2>(e));
       max_time = std::max(max_time, std::get<2>(e));
     }
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<timestamp_t> dis_time(
-      min_time, max_time);
-    for (auto& e : edges_array) {
+    std::uniform_int_distribution<timestamp_t> dis_time(min_time, max_time);
+    for (auto &e : edges_array) {
       std::get<2>(e) = dis_time(gen);
     }
   }
@@ -235,47 +234,45 @@ get_binary_edges_from_file_edges(const std::string &filename, bool shuffle) {
   std::vector<std::tuple<uint32_t, uint32_t, uint32_t>> edges;
   edges.reserve(num_edges);
 
-  constexpr long block_size = 1024*1024;
-  
-  char* buffer = (char*)malloc(block_size*line_size);
-  for (long i = 0; i < num_edges; i+=block_size) {
-    size_t read_amount = std::min(block_size, num_edges - i);
-    
-    file.read(buffer, read_amount*line_size);
-    uint32_t *int_buffer = (uint32_t *) buffer;
-    for (long j = 0; j < read_amount; j++) {
-      uint32_t src = int_buffer[3*j];
-      uint32_t dest = int_buffer[3*j+1];
-      uint32_t timestamp = int_buffer[3*j+2];
-      edges.push_back({src,dest,timestamp});
-    }
+  constexpr long block_size = 1024 * 1024;
 
+  char *buffer = (char *)malloc(block_size * line_size);
+  for (long i = 0; i < num_edges; i += block_size) {
+    size_t read_amount = std::min(block_size, num_edges - i);
+
+    file.read(buffer, read_amount * line_size);
+    uint32_t *int_buffer = (uint32_t *)buffer;
+    for (long j = 0; j < read_amount; j++) {
+      uint32_t src = int_buffer[3 * j];
+      uint32_t dest = int_buffer[3 * j + 1];
+      uint32_t timestamp = int_buffer[3 * j + 2];
+      edges.push_back({src, dest, timestamp});
+    }
   }
   if (shuffle) {
     uint32_t min_time = std::numeric_limits<uint32_t>::max();
     uint32_t max_time = std::numeric_limits<uint32_t>::min();
-    for (const auto& e : edges) {
+    for (const auto &e : edges) {
       min_time = std::min(min_time, std::get<2>(e));
       max_time = std::max(max_time, std::get<2>(e));
     }
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint32_t> dis_time(
-      min_time, max_time);
-    for (auto& e : edges) {
+    std::uniform_int_distribution<uint32_t> dis_time(min_time, max_time);
+    for (auto &e : edges) {
       std::get<2>(e) = dis_time(gen);
     }
   }
   free(buffer);
-  std::sort(edges.begin(), edges.end(),
-          [](auto const &t1, auto const &t2) {
-            return std::get<2>(t1) < std::get<2>(t2);
-          });
+  std::sort(edges.begin(), edges.end(), [](auto const &t1, auto const &t2) {
+    return std::get<2>(t1) < std::get<2>(t2);
+  });
   return edges;
 }
 
 std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>>
-get_binary_edges_from_file_edges_with_remove(const std::string &filename, bool shuffle) {
+get_binary_edges_from_file_edges_with_remove(const std::string &filename,
+                                             bool shuffle) {
 
   std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
   if (!file.is_open()) {
@@ -289,50 +286,48 @@ get_binary_edges_from_file_edges_with_remove(const std::string &filename, bool s
   long num_edges = n / line_size;
   std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>> edges;
   edges.reserve(num_edges);
-  constexpr long block_size = 1024*1024;
-  
-  char* buffer = (char*)malloc(block_size*line_size);
-  for (long i = 0; i < num_edges; i+=block_size) {
-    size_t read_amount = std::min(block_size, num_edges - i);
-    
-    file.read(buffer, read_amount*line_size);
-    uint32_t *int_buffer = (uint32_t *) buffer;
-    for (long j = 0; j < read_amount; j++) {
-      bool added = int_buffer[4*j] == 1;
-      uint32_t src = int_buffer[4*j+1];
-      uint32_t dest = int_buffer[4*j+2];
-      uint32_t timestamp = int_buffer[4*j+3];
-      edges.push_back({added, src,dest,timestamp});
-    }
+  constexpr long block_size = 1024 * 1024;
 
+  char *buffer = (char *)malloc(block_size * line_size);
+  for (long i = 0; i < num_edges; i += block_size) {
+    size_t read_amount = std::min(block_size, num_edges - i);
+
+    file.read(buffer, read_amount * line_size);
+    uint32_t *int_buffer = (uint32_t *)buffer;
+    for (long j = 0; j < read_amount; j++) {
+      bool added = int_buffer[4 * j] == 1;
+      uint32_t src = int_buffer[4 * j + 1];
+      uint32_t dest = int_buffer[4 * j + 2];
+      uint32_t timestamp = int_buffer[4 * j + 3];
+      edges.push_back({added, src, dest, timestamp});
+    }
   }
   free(buffer);
   if (shuffle) {
     uint32_t min_time = std::numeric_limits<uint32_t>::max();
     uint32_t max_time = std::numeric_limits<uint32_t>::min();
-    for (const auto& e : edges) {
+    for (const auto &e : edges) {
       min_time = std::min(min_time, std::get<3>(e));
       max_time = std::max(max_time, std::get<3>(e));
     }
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint32_t> dis_time(
-      min_time, max_time);
-    for (auto& e : edges) {
+    std::uniform_int_distribution<uint32_t> dis_time(min_time, max_time);
+    for (auto &e : edges) {
       std::get<3>(e) = dis_time(gen);
     }
   }
-  std::sort(edges.begin(), edges.end(),
-          [](auto const &t1, auto const &t2) {
-            return std::get<3>(t1) < std::get<3>(t2);
-          });
+  std::sort(edges.begin(), edges.end(), [](auto const &t1, auto const &t2) {
+    return std::get<3>(t1) < std::get<3>(t2);
+  });
   return edges;
 }
 
 bool ends_with(std::string const &fullString, std::string const &ending) {
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
+  if (fullString.length() >= ending.length()) {
+    return (0 == fullString.compare(fullString.length() - ending.length(),
+                                    ending.length(), ending));
+  } else {
+    return false;
+  }
 }

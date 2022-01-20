@@ -8,13 +8,14 @@
 #include <iostream>
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
-void graph_statistics(const 
-    std::vector<std::tuple<node_t, node_t, timestamp_t>> &edges,
+void graph_statistics(
+    const std::vector<std::tuple<node_t, node_t, timestamp_t>> &edges,
     uint64_t print_freq, std::string &output_filename) {
   std::ofstream myfile;
   myfile.open(output_filename);
   AppendOnlyGraph<> g;
-  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, max_degree, "
+  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, "
+            "max_degree, "
             "num_triangles, "
             "new_edges"
          << std::endl;
@@ -29,21 +30,23 @@ void graph_statistics(const
     for (uint64_t j = i; j < end; j++) {
       count_new += g.add_edge(std::get<0>(edges[j]), std::get<1>(edges[j]));
     }
-    myfile << end << "," << std::get<2>(edges[i]) << "," << g.num_nodes() << "," << g.num_edges() << ","
-           << g.average_degree() << "," << g.max_degree() << ","
-           << g.num_triangles() << "," << count_new << std::endl;
+    myfile << end << "," << std::get<2>(edges[i]) << "," << g.num_nodes() << ","
+           << g.num_edges() << "," << g.average_degree() << ","
+           << g.max_degree() << "," << g.num_triangles() << "," << count_new
+           << std::endl;
   }
   myfile.close();
 }
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
-void graph_statistics_remove(const 
-    std::vector<std::tuple<bool, node_t, node_t, timestamp_t>> &edges,
+void graph_statistics_remove(
+    const std::vector<std::tuple<bool, node_t, node_t, timestamp_t>> &edges,
     uint64_t print_freq, std::string &output_filename) {
   std::ofstream myfile;
   myfile.open(output_filename);
   Graph<> g;
-  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, max_degree, "
+  myfile << "timestep, timestamp, num_nodes, num_edges, average_degree, "
+            "max_degree, "
             "num_triangles, "
             "new_edges"
          << std::endl;
@@ -62,9 +65,10 @@ void graph_statistics_remove(const
         g.remove_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
       }
     }
-    myfile << end << "," << std::get<3>(edges[i]) << "," << g.num_nodes() << "," << g.num_edges() << ","
-           << g.average_degree() << "," << g.max_degree() << ","
-           << g.num_triangles() << "," << count_new << std::endl;
+    myfile << end << "," << std::get<3>(edges[i]) << "," << g.num_nodes() << ","
+           << g.num_edges() << "," << g.average_degree() << ","
+           << g.max_degree() << "," << g.num_triangles() << "," << count_new
+           << std::endl;
   }
   myfile.close();
 }
@@ -83,8 +87,7 @@ ABSL_FLAG(double, ws_beta, .1, "Value of beta for ws");
 ABSL_FLAG(std::string, input, "", "input filename for real graphs");
 ABSL_FLAG(bool, edges_shuffle, false,
           "Shuffle the order for edges in a .edges file");
-ABSL_FLAG(bool, remove, false,
-          "If there can be edge removals in the graph");
+ABSL_FLAG(bool, remove, false, "If there can be edge removals in the graph");
 
 int main(int32_t argc, char *argv[]) {
   absl::SetProgramUsageMessage(
@@ -101,15 +104,15 @@ int main(int32_t argc, char *argv[]) {
         absl::GetFlag(FLAGS_ws_beta), absl::GetFlag(FLAGS_input),
         absl::GetFlag(FLAGS_edges_shuffle));
     std::cout << "done loading the graph" << std::endl;
-    std::cout << "have " << edges.size() << " edges and " << num_nodes << " nodes"
-              << std::endl;
+    std::cout << "have " << edges.size() << " edges and " << num_nodes
+              << " nodes" << std::endl;
     std::cout << " printing every " << print_freq << std::endl;
     if (num_nodes > 0) {
       std::cout << "output filename is " << output_filename << std::endl;
       graph_statistics(edges, print_freq, output_filename);
     }
   } else {
-        auto [edges, num_nodes] = Graph<uint32_t>::get_graph_edges(
+    auto [edges, num_nodes] = Graph<uint32_t>::get_graph_edges(
         absl::GetFlag(FLAGS_command), absl::GetFlag(FLAGS_num_nodes),
         absl::GetFlag(FLAGS_rmat_num_edges), absl::GetFlag(FLAGS_rmat_a),
         absl::GetFlag(FLAGS_rmat_b), absl::GetFlag(FLAGS_rmat_c),
@@ -117,8 +120,8 @@ int main(int32_t argc, char *argv[]) {
         absl::GetFlag(FLAGS_ws_beta), absl::GetFlag(FLAGS_input),
         absl::GetFlag(FLAGS_edges_shuffle));
     std::cout << "done loading the graph" << std::endl;
-    std::cout << "have " << edges.size() << " edges and " << num_nodes << " nodes"
-              << std::endl;
+    std::cout << "have " << edges.size() << " edges and " << num_nodes
+              << " nodes" << std::endl;
     std::cout << " printing every " << print_freq << std::endl;
     if (num_nodes > 0) {
       std::cout << "output filename is " << output_filename << std::endl;
