@@ -40,7 +40,7 @@ void graph_statistics(
 
 template <class node_t = uint32_t, class timestamp_t = uint32_t>
 void graph_statistics_remove(
-    const std::vector<std::tuple<bool, node_t, node_t, timestamp_t>> &edges,
+    const std::vector<std::tuple<node_t, node_t, bool, timestamp_t>> &edges,
     uint64_t print_freq, std::string &output_filename) {
   std::ofstream myfile;
   myfile.open(output_filename);
@@ -59,10 +59,10 @@ void graph_statistics_remove(
       end = edges.size();
     }
     for (uint64_t j = i; j < end; j++) {
-      if (std::get<0>(edges[j])) {
-        count_new += g.add_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
+      if (std::get<2>(edges[j])) {
+        count_new += g.add_edge(std::get<0>(edges[j]), std::get<1>(edges[j]));
       } else {
-        g.remove_edge(std::get<1>(edges[j]), std::get<2>(edges[j]));
+        g.remove_edge(std::get<0>(edges[j]), std::get<1>(edges[j]));
       }
     }
     myfile << end << "," << std::get<3>(edges[i]) << "," << g.num_nodes() << ","

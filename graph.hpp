@@ -238,19 +238,19 @@ public:
   uint64_t num_triangles() { return triangle_count_; }
 
   template <class timestamp_t = uint32_t>
-  static std::pair<std::vector<std::tuple<bool, node_t, node_t, timestamp_t>>,
+  static std::pair<std::vector<std::tuple<node_t, node_t, bool, timestamp_t>>,
                    node_t>
   get_graph_edges(const std::string &command, node_t num_nodes,
                   uint64_t rmat_num_edges, double rmat_a, double rmat_b,
                   double rmat_c, double er_p, uint64_t ws_K, double ws_beta,
                   const std::string &input_filename, bool shuffle) {
-    std::vector<std::tuple<bool, node_t, node_t, timestamp_t>> edges;
+    std::vector<std::tuple<node_t, node_t, bool, timestamp_t>> edges;
     if (command == "edges_bin") {
       edges =
           get_binary_edges_from_file_edges_with_remove(input_filename, shuffle);
       for (const auto &e : edges) {
+        num_nodes = std::max(num_nodes, std::get<0>(e));
         num_nodes = std::max(num_nodes, std::get<1>(e));
-        num_nodes = std::max(num_nodes, std::get<2>(e));
       }
     } else {
       std::cout << "command not found was: " << command << std::endl;
@@ -258,5 +258,16 @@ public:
     }
 
     return {std::move(edges), num_nodes + 1};
+  }
+  template <class timestamp_t = uint32_t>
+  static std::pair<std::vector<std::tuple<node_t, node_t, bool, timestamp_t>>,
+                   node_t>
+  get_graph_edges(const std::string &input_filename) {
+    if (ends_with(input_filename, "bin")) {
+      return get_graph_edges("edges_bin", 0, 0, 0, 0, 0, 0, 0, 0,
+                             input_filename, false);
+    }
+    return get_graph_edges("edges", 0, 0, 0, 0, 0, 0, 0, 0, input_filename,
+                           false);
   }
 };

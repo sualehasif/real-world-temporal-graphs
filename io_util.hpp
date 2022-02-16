@@ -270,7 +270,7 @@ get_binary_edges_from_file_edges(const std::string &filename, bool shuffle) {
   return edges;
 }
 
-std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>>
+std::vector<std::tuple<uint32_t, uint32_t, bool, uint32_t>>
 get_binary_edges_from_file_edges_with_remove(const std::string &filename,
                                              bool shuffle) {
 
@@ -284,7 +284,7 @@ get_binary_edges_from_file_edges_with_remove(const std::string &filename,
   file.seekg(0, std::ios::beg);
   long n = end - file.tellg();
   long num_edges = n / line_size;
-  std::vector<std::tuple<bool, uint32_t, uint32_t, uint32_t>> edges;
+  std::vector<std::tuple<uint32_t, uint32_t, bool, uint32_t>> edges;
   edges.reserve(num_edges);
   constexpr long block_size = 1024 * 1024;
 
@@ -299,7 +299,7 @@ get_binary_edges_from_file_edges_with_remove(const std::string &filename,
       uint32_t src = int_buffer[4 * j + 1];
       uint32_t dest = int_buffer[4 * j + 2];
       uint32_t timestamp = int_buffer[4 * j + 3];
-      edges.push_back({added, src, dest, timestamp});
+      edges.push_back({src, dest, added, timestamp});
     }
   }
   free(buffer);
