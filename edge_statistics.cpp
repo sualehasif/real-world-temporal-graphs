@@ -1,9 +1,9 @@
+#include "absl/container/flat_hash_map.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "graph.hpp"
 #include "graph_generators.hpp"
-#include "absl/container/flat_hash_map.h"
 #include "io_util.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -11,8 +11,8 @@
 #include <tuple>
 
 template <class edge_t>
-void edge_statistics(
-    const std::vector<edge_t> &edges, const std::string &output_filename) {
+void edge_statistics(const std::vector<edge_t> &edges,
+                     const std::string &output_filename) {
 
   using node_t = std::tuple_element_t<0, edge_t>;
 
@@ -23,10 +23,10 @@ void edge_statistics(
   }
   std::vector<uint64_t> counts(10);
   for (const auto &e : edge_map) {
-    if (e.second > counts.size()+1) {
-      counts.resize(e.second+1);
+    if (e.second > counts.size() + 1) {
+      counts.resize(e.second + 1);
     }
-     counts[e.second]++;
+    counts[e.second]++;
   }
 
   std::ofstream edge_count_histogram;
@@ -37,13 +37,11 @@ void edge_statistics(
   edge_count_histogram.close();
 }
 
-
 ABSL_FLAG(std::string, command, "", "Which test to run");
 ABSL_FLAG(std::string, output, "del.csv", "output filename");
 
 ABSL_FLAG(std::string, input, "", "input filename for real graphs");
 ABSL_FLAG(bool, remove, false, "If there can be edge removals in the graph");
-
 
 int main(int32_t argc, char *argv[]) {
   absl::SetProgramUsageMessage(
