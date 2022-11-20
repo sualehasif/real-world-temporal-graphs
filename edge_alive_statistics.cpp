@@ -24,14 +24,14 @@ void edge_statistics(std::vector<edge_t> &edges,
   constexpr bool removals = std::tuple_size_v<edge_t> == 4;
   auto src = [](edge_t &e) -> node_t & { return std::get<0>(e); };
   auto dest = [](edge_t &e) -> node_t & { return std::get<1>(e); };
-  auto insert = [removals](edge_t e) {
+  auto insert = [](edge_t e) {
     if constexpr (removals) {
       return std::get<2>(e);
     } else {
       return true;
     }
   };
-  auto timestamp = [removals](edge_t &e) -> timestamp_t & {
+  auto timestamp = [](edge_t &e) -> timestamp_t & {
     if constexpr (removals) {
       return std::get<3>(e);
     } else {
@@ -39,7 +39,7 @@ void edge_statistics(std::vector<edge_t> &edges,
     }
   };
 
-  std::vector<absl::flat_hash_map<std::pair<node_t, node_t>, uint64_t>>
+  std::vector<absl::flat_hash_map<std::pair<node_t, node_t>, uint32_t>>
       alive_edges(window_sizes.size());
   absl::flat_hash_set<std::pair<node_t, node_t>> total_edges;
 
@@ -49,7 +49,7 @@ void edge_statistics(std::vector<edge_t> &edges,
   std::ofstream active_edges_file;
   active_edges_file.open(output_filename);
 
-  active_edges_file << "step count";
+  active_edges_file << "step count, timestamp";
   for (uint64_t j = 0; j < window_sizes.size(); j++) {
     active_edges_file << ", window of " << window_sizes[j];
   }
@@ -63,15 +63,18 @@ void edge_statistics(std::vector<edge_t> &edges,
       for (uint64_t j = 0; j < window_sizes.size(); j++) {
         auto window_size = window_sizes[j];
         alive_edges[j][{src(edges[i]), dest(edges[i])}]++;
+        // std::cout << "edge (" << src(edges[i]) << ", " << dest(edges[i]) << ") has score " << alive_edges[j][{src(edges[i]), dest(edges[i])}] << "\n";
         edge_t windowed_remove = edges[i];
         timestamp(windowed_remove) = timestamp(edges[i]) + window_size;
         remove_after_window[j].push_back(windowed_remove);
       }
     } else {
       for (uint64_t j = 0; j < window_sizes.size(); j++) {
-        alive_edges[j][{src(edges[i]), dest(edges[i])}]--;
-        if (alive_edges[j][{src(edges[i]), dest(edges[i])}] == 0) {
-          alive_edges[j].erase({src(edges[i]), dest(edges[i])});
+        if (alive_edges[j].contains({src(edges[i]), dest(edges[i])})) {
+          alive_edges[j][{src(edges[i]), dest(edges[i])}]--;
+          if (alive_edges[j][{src(edges[i]), dest(edges[i])}] == 0) {
+            alive_edges[j].erase({src(edges[i]), dest(edges[i])});
+          }
         }
       }
     }
@@ -79,24 +82,26 @@ void edge_statistics(std::vector<edge_t> &edges,
     for (uint64_t j = 0; j < window_sizes.size(); j++) {
 
       while (!remove_after_window[j].empty() &&
-             timestamp(remove_after_window[j].front()) == ts) {
+             timestamp(remove_after_window[j].front()) <= ts) {
         edge_t e = remove_after_window[j].front();
-        alive_edges[j][{src(e), dest(e)}]--;
-        if (alive_edges[j][{src(e), dest(e)}] == 0) {
-          alive_edges[j].erase({src(e), dest(e)});
+        if (alive_edges[j].contains({src(e), dest(e)})) {
+          alive_edges[j][{src(e), dest(e)}]--;
+          if (alive_edges[j][{src(e), dest(e)}] == 0) {
+            alive_edges[j].erase({src(e), dest(e)});
+          }
         }
         remove_after_window[j].pop_front();
       }
     }
-    if (i % print_freq == 0) {
-      active_edges_file << i;
+    if (i % print_freq == 0 && i > 0) {
+      active_edges_file << i << ", " << ts;
       for (uint64_t j = 0; j < window_sizes.size(); j++) {
         active_edges_file << ", " << alive_edges[j].size();
       }
       active_edges_file << ", " << total_edges.size() << "\n";
     }
   }
-  active_edges_file << edges.size();
+  active_edges_file << edges.size() << ", " << timestamp(edges.back());
   for (uint64_t j = 0; j < window_sizes.size(); j++) {
     active_edges_file << ", " << alive_edges[j].size();
   }
@@ -112,7 +117,7 @@ ABSL_FLAG(bool, remove, false, "If there can be edge removals in the graph");
 ABSL_FLAG(uint64_t, print_freq, 1000, "How often to dump stats to file");
 ABSL_FLAG(std::vector<std::string>, windows,
           std::vector<std::string>({"100", "1000", "10000", "100000", "1000000",
-                                    "10000000"}),
+                                    "10000000", "100000000", "1000000000"}),
           "the sizes of the different windows");
 
 int main(int32_t argc, char *argv[]) {
